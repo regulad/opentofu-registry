@@ -1,0 +1,93 @@
+name: Publish mirror
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+env:
+  GH_REPO: ${{ github.repository }}
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
+      - name: Check hashes against a real lock file (oracle/oci 9.9.0, linux_amd64)
+        run: |
+          url=$(curl -fsSL https://registry.opentofu.org/v1/providers/oracle/oci/9.9.0/download/linux/amd64 \
+            | python -c 'import json, sys; print(json.load(sys.stdin)["download_url"])')
+          curl -fsSL -o "$RUNNER_TEMP/oci.zip" "$url"
+          python tools/mirror.py check-lock-vector "$RUNNER_TEMP/oci.zip" tests/fixtures/oci-9.9.0.lock-hashes.txt
+
+  build:
+    needs: test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: write # create releases
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+      # Each source's go.mod selects its own toolchain through GOTOOLCHAIN=auto (set by build.py).
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: '1.27.2'
+          cache: false
+      - name: Build and release missing versions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python tools/build.py providers.toml "$RUNNER_TEMP/dist"
+
+  site:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+      - name: Render mirror documents
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python tools/mirror.py site providers.toml _site
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: _site
+
+  deploy:
+    needs: site
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

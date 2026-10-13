@@ -1,0 +1,31 @@
+# Provider builds served by https://opentofu.regulad.xyz/, an OpenTofu provider network mirror.
+#
+# Each version is built once from its pinned commit and published as a GitHub Release of this
+# repository; it is never rebuilt. To change a build, add a new version (bump the trailing build
+# counter) instead of editing an existing entry.
+
+# Upstream bpg/terraform-provider-proxmox's release matrix (darwin_arm is not a Go target).
+platforms = [
+  "darwin_amd64",
+  "darwin_arm64",
+  "freebsd_386",
+  "freebsd_amd64",
+  "freebsd_arm",
+  "freebsd_arm64",
+  "linux_386",
+  "linux_amd64",
+  "linux_arm",
+  "linux_arm64",
+  "windows_386",
+  "windows_amd64",
+  "windows_arm64",
+]
+
+[[providers]]
+address = "registry.opentofu.org/bpg/proxmox"
+
+[[providers.versions]]
+version = "0.117.0-pr3167.1"
+source = "https://github.com/regulad/terraform-provider-proxmox"
+commit = "5412a2722eeb6f26ee25ada15e644370fe424c9c"
+note = "proxmox_custom_cpu_model, pending https://github.com/bpg/terraform-provider-proxmox/pull/3167"

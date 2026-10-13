@@ -1,0 +1,20 @@
+# Repository settings, applied by the Probot "Settings" app.
+# https://github.com/repository-settings/app
+# Pages (workflow builds, the opentofu.regulad.xyz domain, HTTPS) is not managed by the app;
+# see the README's one-time setup.
+
+repository:
+  name: opentofu-registry
+  description: "OpenTofu provider mirror for builds not yet released upstream"
+  homepage: https://opentofu.regulad.xyz/
+  topics: opentofu, terraform, provider-mirror, network-mirror, github-pages, homelab
+
+  private: false
+
+  has_issues: false
+  has_projects: false
+  has_wiki: false
+  has_downloads: false
+  has_discussions: false
+
+  default_branch: master
