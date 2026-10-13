@@ -8,20 +8,24 @@ state migration.
 
 ## Using it
 
-Add the mirror to the OpenTofu CLI configuration, limited to the providers it carries:
+Add the mirror to the OpenTofu CLI configuration, limited to the providers it carries, and
+list `direct` **first**:
 
 ```hcl
 provider_installation {
+  direct {}
   network_mirror {
     url     = "https://opentofu.regulad.xyz/"
     include = ["registry.opentofu.org/bpg/proxmox"]
   }
-  direct {}
 }
 ```
 
-OpenTofu merges the versions available from every matching installation method, so official
-releases still install through `direct`. Pin a mirrored build exactly:
+OpenTofu picks the newest version that matches the constraint, from all matching methods.
+It then installs that version from the first method, in configuration order, that has it.
+A mirror listed first returns 404 for official releases and stops the install. With
+`direct` first, official releases come from the registry, and versions the registry lacks
+fall through to the mirror. Pin a mirrored build exactly:
 
 ```hcl
 proxmox = {
@@ -31,7 +35,12 @@ proxmox = {
 ```
 
 Lock-file hashes (`h1:`) are checked as usual. The mirror protocol relies on HTTPS and those
-hashes; there are no GPG signatures.
+hashes; there are no GPG signatures. `tofu providers lock` ignores the CLI configuration and
+asks the origin registry, so point it at the mirror to record every platform:
+
+```sh
+tofu providers lock -net-mirror=https://opentofu.regulad.xyz/ -platform=linux_amd64 -platform=windows_amd64
+```
 
 ## Builds
 

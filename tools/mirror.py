@@ -176,13 +176,16 @@ def landing_page(builds, repo):
 <h1>OpenTofu provider mirror</h1>
 <p>A provider network mirror for builds that are not yet released upstream.
 Source: <a href="https://github.com/{html.escape(repo)}">{html.escape(repo)}</a>.</p>
+<p>List <code>direct</code> first: OpenTofu installs from the first method that has the
+selected version, so official releases come from the registry and these builds from here.</p>
 <pre>provider_installation {{
+  direct {{}}
   network_mirror {{
     url     = "{MIRROR_URL}"
     include = [{includes}]
   }}
-  direct {{}}
 }}</pre>
+<p>To lock other platforms: <code>tofu providers lock -net-mirror={MIRROR_URL} -platform=&lt;os&gt;_&lt;arch&gt;</code></p>
 <h2>Builds</h2>
 <ul>
 {rows}
