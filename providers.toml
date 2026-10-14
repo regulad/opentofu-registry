@@ -29,3 +29,10 @@ version = "0.117.0-pr3167.1"
 source = "https://github.com/regulad/terraform-provider-proxmox"
 commit = "5412a2722eeb6f26ee25ada15e644370fe424c9c"
 note = "proxmox_custom_cpu_model, pending https://github.com/bpg/terraform-provider-proxmox/pull/3167"
+
+# The combo/3167-3170 branch: a merge of the pull request branches for #3167 and #3170.
+[[providers.versions]]
+version = "0.117.0-pr3167.pr3170.1"
+source = "https://github.com/regulad/terraform-provider-proxmox"
+commit = "d1f1041ab3fbe25472869ecfe16376a2c736b40f"
+note = "proxmox_custom_cpu_model and string-typed container cpus, pending https://github.com/bpg/terraform-provider-proxmox/pull/3167 and https://github.com/bpg/terraform-provider-proxmox/pull/3170"

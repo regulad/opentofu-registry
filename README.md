@@ -30,7 +30,7 @@ fall through to the mirror. Pin a mirrored build exactly:
 ```hcl
 proxmox = {
   source  = "bpg/proxmox"
-  version = "= 0.117.0-pr3167.1"
+  version = "= 0.117.0-pr3167.pr3170.1"
 }
 ```
 
@@ -47,6 +47,7 @@ tofu providers lock -net-mirror=https://opentofu.regulad.xyz/ -platform=linux_am
 | Provider | Version | Source | Why |
 |---|---|---|---|
 | `bpg/proxmox` | `0.117.0-pr3167.1` | `regulad/terraform-provider-proxmox` @ `5412a272` | `proxmox_custom_cpu_model`, pending [bpg/terraform-provider-proxmox#3167](https://github.com/bpg/terraform-provider-proxmox/pull/3167) |
+| `bpg/proxmox` | `0.117.0-pr3167.pr3170.1` | `regulad/terraform-provider-proxmox` @ `d1f1041a` (`combo/3167-3170`) | #3167 plus string-typed container `cpus`, pending [bpg/terraform-provider-proxmox#3170](https://github.com/bpg/terraform-provider-proxmox/pull/3170) |
 
 `providers.toml` is the source of truth. Each version names its source repository, an
 exact commit and a note. The platform list mirrors upstream's release matrix.
@@ -78,7 +79,9 @@ next build counter instead (`0.117.0-pr3167.2`). Removing an entry stops the mir
 it; its release stays, so old lock files can still download it by URL.
 
 Version strings must be valid semver and must never collide with an upstream release. Use
-the next upstream version a change would land in, plus `-pr<number>.<build>`.
+the next upstream version a change would land in, plus `-pr<number>.<build>`. A build that
+combines several pull requests names each one (`0.117.0-pr3167.pr3170.1`) and is built from
+a fork branch that merges their branches.
 
 ## Local checks
 
