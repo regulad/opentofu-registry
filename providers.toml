@@ -36,3 +36,11 @@ version = "0.117.0-pr3167.pr3170.1"
 source = "https://github.com/regulad/terraform-provider-proxmox"
 commit = "d1f1041ab3fbe25472869ecfe16376a2c736b40f"
 note = "proxmox_custom_cpu_model and string-typed container cpus, pending https://github.com/bpg/terraform-provider-proxmox/pull/3167 and https://github.com/bpg/terraform-provider-proxmox/pull/3170"
+
+# The combo/3204-3207-3209 branch: upstream main after 0.117.0 (6aced984) with the pull request
+# branches for #3204, #3207 and #3209 merged in.
+[[providers.versions]]
+version = "0.118.0-pr3204.pr3207.pr3209.1"
+source = "https://github.com/regulad/terraform-provider-proxmox"
+commit = "f21dae85b00962bc29600f6efc957130c36bd84d"
+note = "Ceph pool import fix, proxmox_storage_rbd, proxmox_ceph_mds, proxmox_ceph_fs and proxmox_storage_cephfs, pending https://github.com/bpg/terraform-provider-proxmox/pull/3204, https://github.com/bpg/terraform-provider-proxmox/pull/3207 and https://github.com/bpg/terraform-provider-proxmox/pull/3209"

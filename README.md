@@ -48,6 +48,7 @@ tofu providers lock -net-mirror=https://opentofu.regulad.xyz/ -platform=linux_am
 |---|---|---|---|
 | `bpg/proxmox` | `0.117.0-pr3167.1` | `regulad/terraform-provider-proxmox` @ `5412a272` | `proxmox_custom_cpu_model`, pending [bpg/terraform-provider-proxmox#3167](https://github.com/bpg/terraform-provider-proxmox/pull/3167) |
 | `bpg/proxmox` | `0.117.0-pr3167.pr3170.1` | `regulad/terraform-provider-proxmox` @ `d1f1041a` (`combo/3167-3170`) | #3167 plus string-typed container `cpus`, pending [bpg/terraform-provider-proxmox#3170](https://github.com/bpg/terraform-provider-proxmox/pull/3170) |
+| `bpg/proxmox` | `0.118.0-pr3204.pr3207.pr3209.1` | `regulad/terraform-provider-proxmox` @ `f21dae85` (`combo/3204-3207-3209`) | Ceph on upstream `main` after 0.117.0: the pool import fix and `proxmox_storage_rbd` ([#3204](https://github.com/bpg/terraform-provider-proxmox/pull/3204)), `proxmox_ceph_mds` ([#3207](https://github.com/bpg/terraform-provider-proxmox/pull/3207)), `proxmox_ceph_fs` and `proxmox_storage_cephfs` ([#3209](https://github.com/bpg/terraform-provider-proxmox/pull/3209)) |
 
 `providers.toml` is the source of truth. Each version names its source repository, an
 exact commit and a note. The platform list mirrors upstream's release matrix.
