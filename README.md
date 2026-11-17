@@ -2,9 +2,9 @@
 
 An [OpenTofu provider network mirror](https://opentofu.org/docs/internals/provider-network-mirror-protocol/)
 at **https://opentofu.regulad.xyz/** for provider builds that are not released upstream yet,
-such as a fork carrying an open pull request. The mirror serves them under the provider's
-normal address (e.g. `bpg/proxmox`), so switching to the official release later needs no
-state migration.
+such as a fork carrying an open pull request, and for providers of our own that are on no
+registry. The mirror serves them under the provider's normal address (e.g. `bpg/proxmox`),
+so switching to the official release later needs no state migration.
 
 ## Using it
 
@@ -34,6 +34,21 @@ proxmox = {
 }
 ```
 
+A provider of our own is on no registry, so the mirror is its only source; leave it out of
+`direct`:
+
+```hcl
+provider_installation {
+  direct {
+    exclude = ["registry.opentofu.org/regulad/onesignal"]
+  }
+  network_mirror {
+    url     = "https://opentofu.regulad.xyz/"
+    include = ["registry.opentofu.org/regulad/onesignal"]
+  }
+}
+```
+
 Lock-file hashes (`h1:`) are checked as usual. The mirror protocol relies on HTTPS and those
 hashes; there are no GPG signatures. `tofu providers lock` ignores the CLI configuration and
 asks the origin registry, so point it at the mirror to record every platform:
@@ -49,6 +64,7 @@ tofu providers lock -net-mirror=https://opentofu.regulad.xyz/ -platform=linux_am
 | `bpg/proxmox` | `0.117.0-pr3167.1` | `regulad/terraform-provider-proxmox` @ `5412a272` | `proxmox_custom_cpu_model`, pending [bpg/terraform-provider-proxmox#3167](https://github.com/bpg/terraform-provider-proxmox/pull/3167) |
 | `bpg/proxmox` | `0.117.0-pr3167.pr3170.1` | `regulad/terraform-provider-proxmox` @ `d1f1041a` (`combo/3167-3170`) | #3167 plus string-typed container `cpus`, pending [bpg/terraform-provider-proxmox#3170](https://github.com/bpg/terraform-provider-proxmox/pull/3170) |
 | `bpg/proxmox` | `0.118.0-pr3204.pr3207.pr3209.1` | `regulad/terraform-provider-proxmox` @ `f21dae85` (`combo/3204-3207-3209`) | Ceph on upstream `main` after 0.117.0: the pool import fix and `proxmox_storage_rbd` ([#3204](https://github.com/bpg/terraform-provider-proxmox/pull/3204)), `proxmox_ceph_mds` ([#3207](https://github.com/bpg/terraform-provider-proxmox/pull/3207)), `proxmox_ceph_fs` and `proxmox_storage_cephfs` ([#3209](https://github.com/bpg/terraform-provider-proxmox/pull/3209)) |
+| `regulad/onesignal` | `0.1.0` | `regulad/terraform-provider-onesignal` @ `1266efa8` (`v0.1.0`) | Our own provider for OneSignal, on no registry |
 
 `providers.toml` is the source of truth. Each version names its source repository, an
 exact commit and a note. The platform list mirrors upstream's release matrix.
@@ -80,7 +96,8 @@ next build counter instead (`0.117.0-pr3167.2`). Removing an entry stops the mir
 it; its release stays, so old lock files can still download it by URL.
 
 Version strings must be valid semver and must never collide with an upstream release. Use
-the next upstream version a change would land in, plus `-pr<number>.<build>`. A build that
+the next upstream version a change would land in, plus `-pr<number>.<build>`. A provider of
+our own has no upstream: its versions are its own release tags (`0.1.0`). A build that
 combines several pull requests names each one (`0.117.0-pr3167.pr3170.1`) and is built from
 a fork branch that merges their branches.
 
@@ -102,5 +119,5 @@ python tools/build.py providers.toml dist --no-publish --only linux_amd64   # ne
 ## License
 
 The tooling is licensed under the [GNU AGPLv3](LICENSE.md). The mirrored provider binaries
-keep their own licenses (MPL-2.0 for `bpg/proxmox`); each archive includes the source's
+keep their own licenses (MPL-2.0 for `bpg/proxmox` and `regulad/onesignal`); each archive includes the source's
 `LICENSE`, and every release names the exact source commit.
