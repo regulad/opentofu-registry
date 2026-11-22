@@ -1,20 +1,19 @@
-# Repository settings, applied by the Probot "Settings" app.
-# https://github.com/repository-settings/app
+# Repository configuration, managed by the Settings app
+# (https://github.com/repository-settings/app). The shared defaults come from
+# regulad/.github; this file sets only what is this repository's own.
 # Pages (workflow builds, the opentofu.regulad.xyz domain, HTTPS) is not managed by the app;
 # see the README's one-time setup.
+_extends: .github
 
 repository:
   name: opentofu-registry
-  description: "OpenTofu provider mirror for builds not yet released upstream"
+  description: >-
+    OpenTofu provider mirror for builds not yet released upstream
   homepage: https://opentofu.regulad.xyz/
-  topics: opentofu, terraform, provider-mirror, network-mirror, github-pages, homelab
-
   private: false
+  # Topics: comma-and-space separated string, NOT a YAML list.
+  topics: opentofu, terraform, provider-mirror, network-mirror, github-pages, homelab
+  default_branch: master
 
   has_issues: false
-  has_projects: false
-  has_wiki: false
   has_downloads: false
-  has_discussions: false
-
-  default_branch: master
