@@ -15,5 +15,5 @@ repository:
   topics: opentofu, terraform, provider-mirror, network-mirror, github-pages, homelab
   default_branch: master
 
-  has_issues: false
+  has_issues: true
   has_downloads: false
