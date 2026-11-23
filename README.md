@@ -64,6 +64,7 @@ tofu providers lock -net-mirror=https://opentofu.regulad.xyz/ -platform=linux_am
 | `bpg/proxmox` | `0.117.0-pr3167.1` | `regulad/terraform-provider-proxmox` @ `5412a272` | `proxmox_custom_cpu_model`, pending [bpg/terraform-provider-proxmox#3167](https://github.com/bpg/terraform-provider-proxmox/pull/3167) |
 | `bpg/proxmox` | `0.117.0-pr3167.pr3170.1` | `regulad/terraform-provider-proxmox` @ `d1f1041a` (`combo/3167-3170`) | #3167 plus string-typed container `cpus`, pending [bpg/terraform-provider-proxmox#3170](https://github.com/bpg/terraform-provider-proxmox/pull/3170) |
 | `bpg/proxmox` | `0.118.0-pr3204.pr3207.pr3209.1` | `regulad/terraform-provider-proxmox` @ `f21dae85` (`combo/3204-3207-3209`) | Ceph on upstream `main` after 0.117.0: the pool import fix and `proxmox_storage_rbd` ([#3204](https://github.com/bpg/terraform-provider-proxmox/pull/3204)), `proxmox_ceph_mds` ([#3207](https://github.com/bpg/terraform-provider-proxmox/pull/3207)), `proxmox_ceph_fs` and `proxmox_storage_cephfs` ([#3209](https://github.com/bpg/terraform-provider-proxmox/pull/3209)) |
+| `integrations/github` | `6.14.0-pr2366.1` | `regulad/terraform-provider-github` @ `ece9a53d` (`rebase/2366`) | `github_user_ssh_signing_key`, pending [integrations/terraform-provider-github#2366](https://github.com/integrations/terraform-provider-github/pull/2366), applied onto upstream `main` |
 | `regulad/onesignal` | `0.1.0` | `regulad/terraform-provider-onesignal` @ `1266efa8` (`v0.1.0`) | Our own provider for OneSignal, on no registry |
 
 `providers.toml` is the source of truth. Each version names its source repository, an
@@ -119,5 +120,5 @@ python tools/build.py providers.toml dist --no-publish --only linux_amd64   # ne
 ## License
 
 The tooling is licensed under the [GNU AGPLv3](LICENSE.md). The mirrored provider binaries
-keep their own licenses (MPL-2.0 for `bpg/proxmox` and `regulad/onesignal`); each archive includes the source's
+keep their own licenses (MPL-2.0 for `bpg/proxmox` and `regulad/onesignal`, MIT for `integrations/github`); each archive includes the source's
 `LICENSE`, and every release names the exact source commit.

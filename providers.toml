@@ -4,7 +4,8 @@
 # repository; it is never rebuilt. To change a build, add a new version (bump the trailing build
 # counter) instead of editing an existing entry.
 
-# Upstream bpg/terraform-provider-proxmox's release matrix (darwin_arm is not a Go target).
+# Upstream bpg/terraform-provider-proxmox's release matrix, which is also what
+# integrations/terraform-provider-github's GoReleaser builds (darwin_arm is not a Go target).
 platforms = [
   "darwin_amd64",
   "darwin_arm64",
@@ -44,6 +45,17 @@ version = "0.118.0-pr3204.pr3207.pr3209.1"
 source = "https://github.com/regulad/terraform-provider-proxmox"
 commit = "f21dae85b00962bc29600f6efc957130c36bd84d"
 note = "Ceph pool import fix, proxmox_storage_rbd, proxmox_ceph_mds, proxmox_ceph_fs and proxmox_storage_cephfs, pending https://github.com/bpg/terraform-provider-proxmox/pull/3204, https://github.com/bpg/terraform-provider-proxmox/pull/3207 and https://github.com/bpg/terraform-provider-proxmox/pull/3209"
+
+[[providers]]
+address = "registry.opentofu.org/integrations/github"
+
+# The rebase/2366 branch: the pull request's commits applied onto upstream main (9017b2ea),
+# brought up to date with go-github v92 and the storeEtag check.
+[[providers.versions]]
+version = "6.14.0-pr2366.1"
+source = "https://github.com/regulad/terraform-provider-github"
+commit = "ece9a53dea1f8db78d475c42dfbd0edbe87320fc"
+note = "github_user_ssh_signing_key, pending https://github.com/integrations/terraform-provider-github/pull/2366"
 
 [[providers]]
 address = "registry.opentofu.org/regulad/onesignal"
