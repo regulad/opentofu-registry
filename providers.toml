@@ -57,6 +57,14 @@ source = "https://github.com/regulad/terraform-provider-github"
 commit = "ece9a53dea1f8db78d475c42dfbd0edbe87320fc"
 note = "github_user_ssh_signing_key, pending https://github.com/integrations/terraform-provider-github/pull/2366"
 
+# The combo/2366-3747 branch: rebase/2366 with user-gpg-key-import merged in, both on
+# upstream main (9017b2ea).
+[[providers.versions]]
+version = "6.14.0-pr2366.pr3747.1"
+source = "https://github.com/regulad/terraform-provider-github"
+commit = "edf00a9ed346441f0542e469575cd66bed9d1bc8"
+note = "github_user_ssh_signing_key and github_user_gpg_key import, pending https://github.com/integrations/terraform-provider-github/pull/2366 and https://github.com/integrations/terraform-provider-github/pull/3747"
+
 [[providers]]
 address = "registry.opentofu.org/regulad/onesignal"
 
