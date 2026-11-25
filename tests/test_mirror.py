@@ -3,8 +3,10 @@ import hashlib
 import json
 from pathlib import Path
 import sys
+import subprocess
 import tempfile
 import unittest
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'tools'))
 import build as builder  # noqa: E402
@@ -114,6 +116,51 @@ class SiteTests(unittest.TestCase):
     def test_refuses_unpublished_version(self):
         with tempfile.TemporaryDirectory() as out, self.assertRaisesRegex(mirror.ImmutableError, 'no published release'):
             mirror.render_site([self.build], {}, 'regulad/opentofu-registry', out)
+
+
+class DryRunTests(unittest.TestCase):
+    """build.py --dry-run, a pull request's build: checks releases, builds the rest, publishes nothing."""
+    NEW = MANIFEST + f'''
+[[providers.versions]]
+version = "0.117.0-pr3167.2"
+source = "{SOURCE}"
+commit = "{COMMIT}"
+'''
+
+    def run_dry(self, make_recorded):
+        """Run --dry-run with the last version released, its hashes.json made by make_recorded."""
+        with tempfile.TemporaryDirectory() as folder:
+            manifest = write(folder, 'providers.toml', self.NEW)
+            platforms, builds = mirror.load_manifest(manifest)
+            released = {builds[-1].tag: make_recorded(builds[-1], platforms)}
+            with mock.patch.object(mirror, 'gh_recorded', side_effect=released.get), \
+                    mock.patch.object(builder, 'build_version') as self.build_version, \
+                    mock.patch.object(builder, 'publish') as self.publish:
+                builder.main([str(manifest), str(Path(folder) / 'dist'), '--dry-run'])
+
+    def test_builds_only_unreleased_versions(self):
+        self.run_dry(recorded_for)
+        self.assertEqual([call.args[0].version for call in self.build_version.call_args_list], ['0.117.0-pr3167.1'])
+        self.publish.assert_not_called()
+
+    def test_refuses_edited_release_before_building(self):
+        def edited(build, platforms):
+            return dict(recorded_for(build, platforms), commit='0' * 40)
+        with self.assertRaisesRegex(mirror.ImmutableError, 'bump the build counter'):
+            self.run_dry(edited)
+        self.build_version.assert_not_called()
+
+
+class GhRecordedTests(unittest.TestCase):
+    def test_missing_release_is_none(self):
+        failed = subprocess.CompletedProcess([], 1, '', 'release not found\n')
+        with mock.patch.object(mirror.subprocess, 'run', return_value=failed):
+            self.assertIsNone(mirror.gh_recorded('tag'))
+
+    def test_other_errors_raise(self):
+        failed = subprocess.CompletedProcess([], 1, '', 'HTTP 401: Bad credentials\n')
+        with mock.patch.object(mirror.subprocess, 'run', return_value=failed), self.assertRaises(RuntimeError):
+            mirror.gh_recorded('tag')
 
 
 if __name__ == '__main__':

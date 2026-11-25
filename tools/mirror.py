@@ -194,10 +194,16 @@ selected version, so official releases come from the registry and these builds f
 
 
 def gh_recorded(tag):
-    """Download a release's hashes.json, or return None when the release does not exist."""
+    """Download a release's hashes.json, or return None when the release does not exist.
+
+    Any other failure to look it up raises, so that an unreadable release (no token, an API
+    error) is never taken for a missing one and rebuilt.
+    """
     view = subprocess.run(['gh', 'release', 'view', tag, '--json', 'tagName'], capture_output=True, text=True)
     if view.returncode != 0:
-        return None
+        if view.stderr.strip() == 'release not found':
+            return None
+        raise RuntimeError(f'gh release view {tag} failed: {view.stderr.strip()}')
     payload = subprocess.check_output(['gh', 'release', 'download', tag, '--pattern', 'hashes.json', '--output', '-'])
     return json.loads(payload)
 

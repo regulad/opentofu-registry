@@ -1,7 +1,9 @@
 """Build manifest versions that have no release yet, and publish each as a GitHub Release.
 
 A version is built exactly once. Versions that are already released are only checked against
-the manifest; a changed source or commit is refused instead of being rebuilt.
+the manifest; a changed source or commit is refused instead of being rebuilt. Every released
+version is checked before anything is built. --dry-run does the same checks and builds, but
+creates no release, for a pull request's run.
 """
 import argparse
 import hashlib
@@ -92,7 +94,10 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument('manifest')
     parser.add_argument('dist', help='output directory; one subdirectory per built release tag')
-    parser.add_argument('--no-publish', action='store_true', help='build only; do not query or create releases')
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--no-publish', action='store_true', help='build every version; do not query or create releases')
+    mode.add_argument('--dry-run', action='store_true',
+                      help='check released versions and build the others, but create no release (pull requests)')
     parser.add_argument('--only', action='append', default=[], help='build only these platforms (testing)')
     args = parser.parse_args(argv)
     platforms, builds = mirror.load_manifest(args.manifest)
@@ -101,17 +106,21 @@ def main(argv=None):
         if unknown:
             raise mirror.ManifestError(f'--only names platforms outside the manifest: {sorted(unknown)}')
         platforms = [platform for platform in platforms if platform in args.only]
-    for build in builds:
-        if not args.no_publish:
+    if not args.no_publish:
+        missing = []
+        for build in builds:
             recorded = mirror.gh_recorded(build.tag)
-            if recorded is not None:
-                mirror.check_recorded(build, recorded)
-                print(f'{build.tag}: already published, unchanged')
+            if recorded is None:
+                missing.append(build)
                 continue
+            mirror.check_recorded(build, recorded)
+            print(f'{build.tag}: already published, unchanged')
+        builds = missing
+    for build in builds:
         dist = Path(args.dist) / build.tag
         with tempfile.TemporaryDirectory(prefix='mirror-build-') as workdir:
             build_version(build, platforms, Path(workdir), dist)
-        if not args.no_publish:
+        if not (args.no_publish or args.dry_run):
             publish(build, dist)
             shutil.rmtree(dist)
         print(f'{build.tag}: built {len(platforms)} platform(s)')
