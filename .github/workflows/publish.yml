@@ -1,15 +1,25 @@
 name: Publish mirror
 
+# A pull request to master runs `test` and `build`, two of .github/settings.yml's required checks. build runs
+# build.py --dry-run: it checks every released version against its release, so a pull request that edits a published
+# build fails, and builds only the versions that have no release yet, the ones the pull request adds, creating no
+# release. A push or a manual run runs the same steps as `release`, which creates the releases, then site and deploy.
+# site stays off pull requests: it adds no check of its own, running the same check_recorded over the same releases,
+# and it refuses a version that has no release yet, so on a pull request that adds one it could only fail.
 on:
   push:
+    branches: [master]
+  pull_request:
     branches: [master]
   workflow_dispatch:
 
 permissions:
   contents: read
 
+# Pull requests get a group of their own, so that a pull request's run never takes the place of a publish waiting in
+# the publish group.
 concurrency:
-  group: publish
+  group: ${{ github.event_name == 'pull_request' && format('pull-request-{0}', github.ref) || 'publish' }}
   cancel-in-progress: false
 
 env:
@@ -35,13 +45,15 @@ jobs:
           curl -fsSL -o "$RUNNER_TEMP/oci.zip" "$url"
           python tools/mirror.py check-lock-vector "$RUNNER_TEMP/oci.zip" tests/fixtures/oci-9.9.0.lock-hashes.txt
 
+  # A pull request's build, and the required check: build.py --dry-run reads releases and creates none, so it gets a
+  # read-only token. Dependabot's runs honour `permissions`, so a write token here would reach the action updates it
+  # proposes.
   build:
     needs: test
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
     timeout-minutes: 60
-    permissions:
-      contents: write # create releases
-    steps:
+    steps: &build-steps
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -53,13 +65,25 @@ jobs:
         with:
           go-version: '1.27.2'
           cache: false
-      - name: Build and release missing versions
+      - name: Build missing versions, and release them unless on a pull request
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python tools/build.py providers.toml "$RUNNER_TEMP/dist"
+          DRY_RUN: ${{ github.event_name == 'pull_request' && '--dry-run' || '' }}
+        run: python tools/build.py providers.toml "$RUNNER_TEMP/dist" ${DRY_RUN:+"$DRY_RUN"}
+
+  # build's steps, on a push or a manual run, where they create the releases.
+  release:
+    needs: test
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: write # create releases
+    steps: *build-steps
 
   site:
-    needs: build
+    needs: release
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -80,6 +104,7 @@ jobs:
 
   deploy:
     needs: site
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:

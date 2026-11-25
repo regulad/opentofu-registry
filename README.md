@@ -73,17 +73,20 @@ exact commit and a note. The platform list mirrors upstream's release matrix.
 
 ## How it works
 
-`.github/workflows/publish.yml` runs on every push to `master` and on manual dispatch:
+`.github/workflows/publish.yml` runs on every push to `master` and on manual dispatch. A
+pull request to `master` runs **test** and **build**, both checks it must pass to merge; its
+build creates no release:
 
 1. **test:** unit tests, then checks the `h1:`/`zh:` hash code against real
    `oracle/oci` 9.9.0 lock-file hashes (`tests/fixtures/`).
-2. **build:** `tools/build.py` builds each manifest version that has no release yet:
+2. **build** (on a pull request) or **release** (otherwise): `tools/build.py` checks every
+   released version against its manifest entry, then builds each one that has no release yet:
    - fetches exactly the pinned commit;
    - cross-compiles every platform the way upstream's GoReleaser does
      (`CGO_ENABLED=0`, `-trimpath`, `-s -w -X main.version=…`);
    - zips the binary with the source's `LICENSE` using fixed metadata;
-   - publishes a GitHub Release tagged `<namespace>-<type>-v<version>`, holding the
-     zips, `SHA256SUMS` and `hashes.json`.
+   - except on a pull request (`--dry-run`), publishes a GitHub Release tagged
+     `<namespace>-<type>-v<version>`, holding the zips, `SHA256SUMS` and `hashes.json`.
 3. **site:** `tools/mirror.py site` renders `/<host>/<namespace>/<type>/index.json` and
    `/<version>.json` from each release's `hashes.json`. Archive URLs point at the release
    assets.
@@ -93,7 +96,7 @@ exact commit and a note. The platform list mirrors upstream's release matrix.
 
 Add a `[[providers.versions]]` entry to `providers.toml` and push. **Published builds are
 immutable:** a release is built once and never rebuilt, so existing lock files stay valid.
-Editing an existing entry's source or commit fails the workflow. Add a new version with the
+Editing an existing entry's source or commit fails the workflow, on the pull request too. Add a new version with the
 next build counter instead (`0.117.0-pr3167.2`). Removing an entry stops the mirror listing
 it; its release stays, so old lock files can still download it by URL.
 
@@ -108,6 +111,7 @@ a fork branch that merges their branches.
 ```sh
 python -m unittest discover -s tests -v
 python tools/build.py providers.toml dist --no-publish --only linux_amd64   # needs Go
+python tools/build.py providers.toml dist --dry-run --only linux_amd64      # also needs gh
 ```
 
 ## One-time setup
