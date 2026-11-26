@@ -34,8 +34,8 @@ proxmox = {
 }
 ```
 
-A provider of our own is on no registry, so the mirror is its only source; leave it out of
-`direct`:
+A provider on no registry, our own or one never published upstream such as `himanoa/ga4`,
+has the mirror as its only source; leave it out of `direct`:
 
 ```hcl
 provider_installation {
@@ -67,6 +67,7 @@ tofu providers lock -net-mirror=https://opentofu.regulad.xyz/ -platform=linux_am
 | `integrations/github` | `6.14.0-pr2366.1` | `regulad/terraform-provider-github` @ `ece9a53d` (`rebase/2366`) | `github_user_ssh_signing_key`, pending [integrations/terraform-provider-github#2366](https://github.com/integrations/terraform-provider-github/pull/2366), applied onto upstream `main` |
 | `integrations/github` | `6.14.0-pr2366.pr3747.1` | `regulad/terraform-provider-github` @ `edf00a9e` (`combo/2366-3747`) | #2366 plus import for `github_user_gpg_key`, pending [integrations/terraform-provider-github#3747](https://github.com/integrations/terraform-provider-github/pull/3747) |
 | `regulad/onesignal` | `0.1.0` | `regulad/terraform-provider-onesignal` @ `1266efa8` (`v0.1.0`) | Our own provider for OneSignal, on no registry |
+| `himanoa/ga4` | `0.1.0-remaining.1` | `regulad/terraform-provider-ga4` @ `93d869b0` (`remaining`) | The rest of the Google Analytics Admin API's v1beta on himanoa/terraform-provider-ga4, which has no release and is on no registry |
 
 `providers.toml` is the source of truth. Each version names its source repository, an
 exact commit and a note. The platform list mirrors upstream's release matrix.
@@ -104,7 +105,9 @@ Version strings must be valid semver and must never collide with an upstream rel
 the next upstream version a change would land in, plus `-pr<number>.<build>`. A provider of
 our own has no upstream: its versions are its own release tags (`0.1.0`). A build that
 combines several pull requests names each one (`0.117.0-pr3167.pr3170.1`) and is built from
-a fork branch that merges their branches.
+a fork branch that merges their branches. A change not yet offered upstream has no pull
+request number, so it names its fork branch instead (`0.1.0-remaining.1`), with the next
+upstream version as the base; for an upstream with no release yet, that is `0.1.0`.
 
 ## Local checks
 
