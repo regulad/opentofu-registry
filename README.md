@@ -67,7 +67,7 @@ tofu providers lock -net-mirror=https://opentofu.regulad.xyz/ -platform=linux_am
 | `integrations/github` | `6.14.0-pr2366.1` | `regulad/terraform-provider-github` @ `ece9a53d` (`rebase/2366`) | `github_user_ssh_signing_key`, pending [integrations/terraform-provider-github#2366](https://github.com/integrations/terraform-provider-github/pull/2366), applied onto upstream `main` |
 | `integrations/github` | `6.14.0-pr2366.pr3747.1` | `regulad/terraform-provider-github` @ `edf00a9e` (`combo/2366-3747`) | #2366 plus import for `github_user_gpg_key`, pending [integrations/terraform-provider-github#3747](https://github.com/integrations/terraform-provider-github/pull/3747) |
 | `regulad/onesignal` | `0.1.0` | `regulad/terraform-provider-onesignal` @ `1266efa8` (`v0.1.0`) | Our own provider for OneSignal, on no registry |
-| `himanoa/ga4` | `0.1.0-remaining.1` | `regulad/terraform-provider-ga4` @ `93d869b0` (`remaining`) | The rest of the Google Analytics Admin API's v1beta on himanoa/terraform-provider-ga4, which has no release and is on no registry |
+| `himanoa/ga4` | `0.1.0-remaining.2` | `regulad/terraform-provider-ga4` @ `3bf03534` (`remaining`) | The rest of the Google Analytics Admin API's v1beta on himanoa/terraform-provider-ga4, which has no release and is on no registry, with imported properties recording `acknowledge_user_data_collection` as false |
 
 `providers.toml` is the source of truth. Each version names its source repository, an
 exact commit and a note. The platform list mirrors upstream's release matrix.

@@ -79,10 +79,12 @@ note = "v0.1.0: apps, app API keys, segments and templates"
 address = "registry.opentofu.org/himanoa/ga4"
 
 # The remaining branch: upstream main (26a50fc) with the rest of the Google Analytics Admin
-# API's v1beta added. Upstream has no release and is on no registry, so its first version,
-# 0.1.0, is the base; no pull request has been opened yet.
+# API's v1beta added, and imported properties recording acknowledge_user_data_collection as
+# false. Upstream has no release and is on no registry, so its first version, 0.1.0, is the
+# base; no pull request has been opened yet. 0.1.0-remaining.1 was built from an earlier
+# version of the branch and is no longer listed.
 [[providers.versions]]
-version = "0.1.0-remaining.1"
+version = "0.1.0-remaining.2"
 source = "https://github.com/regulad/terraform-provider-ga4"
-commit = "93d869b0018f3622745af0bcd951b1af98e47e55"
-note = "the rest of the Admin API v1beta: ga4_account, ga4_data_retention_settings, app data streams, ga4_custom_metric, ga4_key_event, ga4_google_ads_link and ga4_firebase_link"
+commit = "3bf03534cd92821f61ba029a71c46addb96822c1"
+note = "the rest of the Admin API v1beta: ga4_account, ga4_data_retention_settings, app data streams, ga4_custom_metric, ga4_key_event, ga4_google_ads_link and ga4_firebase_link; imports record acknowledge_user_data_collection as false"
